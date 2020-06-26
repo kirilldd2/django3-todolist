@@ -19,10 +19,13 @@ from todo_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.home, name='home'),
 
     # Auth
 
     path('signup/', views.signup_user, name='signup_user'),
+    path('logout/', views.logout_user, name='logout_user'),
+    path('login/', views.login_user, name='login_user'),
 
     # Todolist
 
