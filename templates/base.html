@@ -16,6 +16,29 @@
             <nav id="navbar-example2" class="navbar navbar-light bg-light">
               <a class="navbar-brand" href="#">Hello, {{ user.username }}</a>
               <a class="navbar-brand" href="{% url 'current_todos' %}">TODOS</a>
+              <a class="navbar-brand" href="{% url 'completed_todos' %}">COMPLETED</a>
+              <a class="navbar-brand" href="{% url 'create_todo' %}">CREATE</a>
+              <a class="navbar-brand" href="{% url 'groups' %}">GROUPS</a>
+                <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Invites
+                  </button>
+                    {% if invites %}
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      {% for invite in invites %}
+                          <div class="dropdown-item"
+                          <form method="post" action="">
+                          {% csrf_token %}
+                            <input type="submit">
+                          <input type="text" value="{{ invite.group }}" style="display: none">
+
+                          </form>
+                          </div>
+
+                      {% endfor %}
+                  </div>
+                        {% endif %}
+                </div>
               <ul class="nav nav-pills">
                 <li class="nav-item">
                   <form action="{% url 'logout_user' %}" method="post">

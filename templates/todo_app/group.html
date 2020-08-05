@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Group:</h1>
+
+<h3>{{ group.name }}</h3><br>
+
+    <h5>{{ error }}</h5>
+
+<ul>
+{% for member in members %}
+    <li>{{ member.username }}</li>
+{% endfor %}
+</ul>
+
+{% if status == 'C' %}
+
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="username" required id="id_username" maxlength="150">
+    <button type="submit">Invite</button>
+
+</form>
+
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
+
+{% endif %}
+
+
+
+
+{% endblock %}
