@@ -4,15 +4,34 @@
 <h1>TODOS:</h1>
 
 <ul>
-    {% for todo in todos %}
+    {% if todos.self %}
+        <br><h5>Your TODOS:</h5>
+        {% for todo in todos.self %}
 
-        <li>{% if todo.importance %}<b>{% endif %}
-            <a href="{% url 'view_todo' todo.id %}">{{ todo.title }}</a>
-        {% if todo.importance%}</b>{% endif %}
-        <br>
-        <span style="padding-left: 1rem">{{ todo.description|truncatechars:50 }}</span>
-        </li>
+            <li>{% if todo.importance %}<b>{% endif %}
+                <a href="{% url 'view_todo' todo.id %}">{{ todo.title }}</a>
+            {% if todo.importance%}</b>{% endif %}
+            <br>
+            <span style="padding-left: 1rem">{{ todo.description|truncatechars:50 }}</span>
+            </li>
 
+        {% endfor %}
+    {% endif %}
+
+    {% for group, gr_todos in todos.items %}
+        {% if gr_todos and group != 'self' %}
+        <br><h5>{{ group }}</h5>
+            {% for todo in gr_todos %}
+
+                <li>{% if todo.importance %}<b>{% endif %}
+                    <a href="{% url 'view_todo' todo.id %}">{{ todo.title }}</a>
+                {% if todo.importance%}</b>{% endif %}
+                <br>
+                <span style="padding-left: 1rem">{{ todo.description|truncatechars:50 }}</span>
+                </li>
+
+            {% endfor %}
+        {% endif %}
     {% endfor %}
 </ul>
 

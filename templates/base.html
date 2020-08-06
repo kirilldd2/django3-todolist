@@ -20,18 +20,18 @@
               <a class="navbar-brand" href="{% url 'create_todo' %}">CREATE</a>
               <a class="navbar-brand" href="{% url 'groups' %}">GROUPS</a>
                 <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Invites
+                  <button class="btn {% if invites %}btn-secondary{% endif %} dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Invites {% if invites %}({{ invites|length }}){% endif %}
                   </button>
                     {% if invites %}
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                       {% for invite in invites %}
-                          <div class="dropdown-item"
-                          <form method="post" action="">
+                          <div class="dropdown-item">
+                          <form method="post" action="{% url 'group_accept' %}">
                           {% csrf_token %}
-                            <input type="submit">
-                          <input type="text" value="{{ invite.group }}" style="display: none">
-
+                            <input type="submit" value="{{ invite.group }} - Принять">
+                              <input type="hidden" value="{{ invite.group }}" name="group">
+                              <input type="hidden" value="{{ request.path }}" name="next">
                           </form>
                           </div>
 

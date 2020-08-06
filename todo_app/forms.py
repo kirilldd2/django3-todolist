@@ -5,7 +5,7 @@ from .models import Todo, Group
 class TodoForm(ModelForm):
     class Meta:
         model = Todo
-        fields = ['title', 'description', 'importance']
+        fields = ['title', 'description', 'importance', 'group']
 
 
 class GroupForm(ModelForm):

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -7,6 +7,9 @@ from .forms import TodoForm, GroupForm
 from .models import Todo, Group, GroupUser
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+
+
+FORBIDDEN_GROUP_NAMES = ['self', 'items', ]
 
 
 def signup_user(request):
@@ -32,7 +35,13 @@ def signup_user(request):
 
 @login_required
 def current_todos(request):
-    todos = Todo.objects.filter(user=request.user, completion_time__isnull=True).order_by('-creation_time')
+    user_todos = Todo.objects.filter(user=request.user, completion_time__isnull=True, group=None).order_by('-creation_time')
+    groups = map(lambda x: x.group, GroupUser.objects.filter(user=request.user))
+    todos = {'self': user_todos}
+    for group in groups:
+        group = Group.objects.get(name=group)
+        todos[group.name] = Todo.objects.filter(group=group.pk, completion_time__isnull=True).order_by('-creation_time')
+
     return render(request, '../templates/todo_app/current_todos.html', {'todos': todos})
 
 
@@ -127,6 +136,9 @@ def create_group(request):
     if request.method == 'GET':
         return render(request, '../templates/todo_app/create_group.html', {'form': GroupForm})
     else:
+        if request.POST['name'] in FORBIDDEN_GROUP_NAMES:
+            return render(request, '../templates/todo_app/create_group.html',
+                          {'form': GroupForm, 'error': 'Forbidden name'})
         _group = Group.objects.create(name=request.POST['name'])
         _group.users.add(request.user, through_defaults={'status': 'C'})
         _group.save()
@@ -145,12 +157,16 @@ def group(request, group_id):
                       {'group': _group, 'status': membership.status, 'members': members})
     else:
         if 'username' in request.POST:
-            if not User.objects.filter(username=request.POST['username']).exists():
+            if User.objects.filter(username=request.POST['username']).exists() \
+                    and not GroupUser.objects.filter(user=User.objects.get(username=request.POST['username']), group=group_id).exists():
                 try:
                     GroupUser.objects.create(group=get_object_or_404(Group, pk=group_id),
                                              user=User.objects.get(username=request.POST['username']),
                                              status='I').save()
-                    return redirect('groups')
+                    _group = Group.objects.get(pk=group_id)
+                    return render(request, '../templates/todo_app/group.html',
+                                  {'group': _group, 'error': 'Invitation has been sent',
+                                   'status': membership.status, 'members': members})
                 except User.DoesNotExist:
                     _group = Group.objects.get(pk=group_id)
                     return render(request, '../templates/todo_app/group.html',
@@ -161,6 +177,25 @@ def group(request, group_id):
                 return render(request, '../templates/todo_app/group.html',
                               {'group': _group, 'error': 'Invite has already been sent',
                                'status': membership.status, 'members': members})
-        else:
+        elif 'delete' in request.POST:
             get_object_or_404(Group, pk=group_id).delete()
             return redirect('groups')
+        elif 'leave' in request.POST:
+            get_object_or_404(GroupUser, group=group_id, user=request.user).delete()
+            for obj in GroupUser.objects.filter(pk=group_id):
+                if obj.status != 'I':
+                    break
+            else:
+                Group.objects.get(pk=group_id).delete()
+            return redirect('groups')
+
+@login_required
+def group_accept(request):
+    if request.method == 'POST':
+        obj = GroupUser.objects.get(user=request.user, group=Group.objects.get(name=request.POST['group']))
+        obj.status = 'M'
+        obj.save()
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+

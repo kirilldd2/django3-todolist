@@ -5,7 +5,9 @@
 
 <h3>{{ group.name }}</h3><br>
 
-    <h5>{{ error }}</h5>
+{% if error %}
+<h5>{{ error }}</h5>
+{% endif %}
 
 <ul>
 {% for member in members %}
@@ -25,11 +27,15 @@
 <form method="POST">
     {% csrf_token %}
     <button type="submit">Delete</button>
+    <input type="hidden" name="delete">
 </form>
 
 {% endif %}
 
-
-
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Leave</button>
+    <input type="hidden" name="leave">
+</form>
 
 {% endblock %}
