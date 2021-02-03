@@ -1,41 +1,41 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Group:</h1>
+    <h1>Group:</h1>
 
-<h3>{{ group.name }}</h3><br>
+    <h3>{{ group.name }}</h3><br>
 
-{% if error %}
-<h5>{{ error }}</h5>
-{% endif %}
+    {% if error %}
+        <h5>{{ error }}</h5>
+    {% endif %}
 
-<ul>
-{% for member in members %}
-    <li>{{ member.username }}</li>
-{% endfor %}
-</ul>
+    <ul>
+        {% for member in members %}
+            <li>{{ member.username }}</li>
+        {% endfor %}
+    </ul>
 
-{% if status == 'C' %}
+    {% if status == 'C' %}
 
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="username" required id="id_username" maxlength="150">
-    <button type="submit">Invite</button>
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="username" required id="id_username" maxlength="150">
+            <button type="submit">Invite</button>
 
-</form>
+        </form>
 
-<form method="POST">
-    {% csrf_token %}
-    <button type="submit">Delete</button>
-    <input type="hidden" name="delete">
-</form>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit">Delete</button>
+            <input type="hidden" name="delete">
+        </form>
 
-{% endif %}
+    {% endif %}
 
-<form method="POST">
-    {% csrf_token %}
-    <button type="submit">Leave</button>
-    <input type="hidden" name="leave">
-</form>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Leave</button>
+        <input type="hidden" name="leave">
+    </form>
 
 {% endblock %}

@@ -52,19 +52,40 @@ def completed_todos(request):
 
 
 @login_required
-def view_todo(request, todo_pk):
-    todo_obj = get_object_or_404(Todo, pk=todo_pk, user=request.user)
+def edit_todo(request, todo_pk):
+    todo_obj = Todo.objects.get(pk=todo_pk)
+    try:
+        group_user = GroupUser.objects.get(user=request.user, group=todo_obj.group)
+        group = Group.objects.get(pk=group_user.group.pk)
+    except GroupUser.DoesNotExist:
+        get_object_or_404(Todo, user=request.user, pk=todo_pk)
+
     if request.method == 'GET':
         form = TodoForm(instance=todo_obj)
-        return render(request, '../templates/todo_app/view_todo.html', {'todo': todo_obj, 'form': form})
+        return render(request, '../templates/todo_app/edit_todo.html', {'todo': todo_obj, 'form': form})
     else:
         try:
             form = TodoForm(request.POST, instance=todo_obj)
             form.save()
             return redirect('current_todos')
         except ValueError:
-            return render(request, '../templates/todo_app/view_todo.html',
+            return render(request, '../templates/todo_app/edit_todo.html',
                           {'todo': todo_obj, 'form': form, 'error': 'Bad data. Fuck you!'})
+
+
+@login_required
+def view_todo(request, todo_pk):
+    if request.method == 'GET':
+        todo_obj = Todo.objects.get(pk=todo_pk)
+        try:
+            group_user = GroupUser.objects.get(user=request.user, group=todo_obj.group)
+            group = Group.objects.get(pk=group_user.group.pk)
+            name = group.name
+        except GroupUser.DoesNotExist:
+            get_object_or_404(Todo, user=request.user, pk=todo_pk)
+            name = None
+
+        return render(request, '../templates/todo_app/view_todo.html', {'todo': todo_obj, 'group_name': name})
 
 
 @login_required
@@ -188,6 +209,7 @@ def group(request, group_id):
             else:
                 Group.objects.get(pk=group_id).delete()
             return redirect('groups')
+
 
 @login_required
 def group_accept(request):

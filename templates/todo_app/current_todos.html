@@ -1,38 +1,53 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>TODOS:</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col col-lg-1"></div>
 
-<ul>
-    {% if todos.self %}
-        <br><h5>Your TODOS:</h5>
-        {% for todo in todos.self %}
+            <div class="col col-lg-8">
+                <h1>LISTS:</h1>
 
-            <li>{% if todo.importance %}<b>{% endif %}
-                <a href="{% url 'view_todo' todo.id %}">{{ todo.title }}</a>
-            {% if todo.importance%}</b>{% endif %}
-            <br>
-            <span style="padding-left: 1rem">{{ todo.description|truncatechars:50 }}</span>
-            </li>
+                <ul>
+                    {% if todos.self %}
+                        <br><h5>Your LISTS:</h5>
+                        <div class="list-group">
+                            {% for todo in todos.self %}
 
-        {% endfor %}
-    {% endif %}
+                                <a href="{% url 'view_todo' todo.id %}"
+                                   class="list-group-item list-group-item-action flex-column align-items-start{% if todo.importance %} active{% endif %}">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ todo.title }}</h5>
+                                        {% load humanize %}
+                                        <small>{{ todo.creation_time|naturaltime }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ todo.description|truncatechars:50 }}</p>
+                                </a>
 
-    {% for group, gr_todos in todos.items %}
-        {% if gr_todos and group != 'self' %}
-        <br><h5>{{ group }}</h5>
-            {% for todo in gr_todos %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
-                <li>{% if todo.importance %}<b>{% endif %}
-                    <a href="{% url 'view_todo' todo.id %}">{{ todo.title }}</a>
-                {% if todo.importance%}</b>{% endif %}
-                <br>
-                <span style="padding-left: 1rem">{{ todo.description|truncatechars:50 }}</span>
-                </li>
-
-            {% endfor %}
-        {% endif %}
-    {% endfor %}
-</ul>
+                    {% for group, gr_todos in todos.items %}
+                        {% if gr_todos and group != 'self' %}
+                            <br><h5>{{ group }}:</h5>
+                            <div class="list-group">
+                                {% for todo in gr_todos %}
+                                    <a href="{% url 'view_todo' todo.id %}" class="list-group-item list-group-item-action flex-column align-items-start{% if todo.importance %} active{% endif %}">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ todo.title }}</h5>
+                                            <small>{{ todo.creation_time|naturaltime }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ todo.description|truncatechars:50 }}</p>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col col-lg-3"></div>
+        </div>
+    </div>
 
 {% endblock %}

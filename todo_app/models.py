@@ -32,4 +32,3 @@ class GroupUser(models.Model):
         ('I', 'Invited')
     )
     status = models.CharField(max_length=1, choices=STATUS_TYPES)
-

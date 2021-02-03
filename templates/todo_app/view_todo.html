@@ -1,30 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>TODO:</h1>
+    Title: {{ todo.title }}<br>
+    Description: {{ todo.description }}<br>
+    Group: {{ name }}<br>
 
-<h3>{{ todo.title }}</h3><br>
-
-<h5>{{ error }}</h5><br>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-
-</form>
-
-<form method="POST" action="{% url 'complete_todo' todo.id %}">
-    {% csrf_token %}
-    <button type="submit">Complete</button>
-</form>
-
-<form method="POST" action="{% url 'delete_todo' todo.id %}">
-    {% csrf_token %}
-    <button type="submit">Delete</button>
-</form>
-
-
+    <a href="{% url 'edit_todo' todo_pk=todo.pk %}">Edit</a>
 
 
 {% endblock %}
