@@ -36,7 +36,13 @@ def signup_user(request):
 @login_required
 def current_todos(request):
     user_todos = Todo.objects.filter(user=request.user, completion_time__isnull=True, group=None).order_by('-creation_time')
-    groups = map(lambda x: x.group, GroupUser.objects.filter(user=request.user))
+    groups = map(
+        lambda x: x.group,
+        filter(
+            lambda gu: gu.status == 'C' or gu.status == 'M',
+            GroupUser.objects.filter(user=request.user)
+        )
+    )
     todos = {'self': user_todos}
     for group in groups:
         group = Group.objects.get(name=group)
